@@ -16,11 +16,13 @@ data = np.zeros((9, 3))
 
 tm = 75
 smp = 8
-for tm in range(8,143):
 
-    for ln_idx in range(1, 100):
+
+for ln_idx in range(1, 100):
+
+    for tr_idx in range(1, 100):
         strttm = time.time()
-        for tr_idx in range(1, 100):
+        for tm in range(8, 143):
             i = 0
 
             for pln in range(-1, 2):
@@ -44,7 +46,7 @@ for tm in range(8,143):
 
             #print(tm,ln_idx, tr_idx, Kmean[ln_idx, tr_idx,tm],runtime)
         runtime = time.time() - strttm
-        print ("finished line = ", ln_idx, "  took", runtime, "sec")
+        print ("finished line,trace = ",ln_idx ,":",tr_idx, "  took", runtime, "sec")
 
 
 
