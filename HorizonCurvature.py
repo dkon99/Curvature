@@ -36,7 +36,7 @@ ti = datetime.datetime.now()
 # curvature loop
 
 ''' Idea is to loop through each column and trace of horizon array
-    - pull out a patch at each point, Z
+    - pull out a patch at each point
     - Calc least sqaures fit for patch
     -Use scalars from least squares fit in Roberts formulas for Curvature'''
 
