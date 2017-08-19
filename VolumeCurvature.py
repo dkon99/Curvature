@@ -52,7 +52,7 @@ h5f=h5py.File('curv.h5','w')
 h5f.create_dataset('Kmax',data=Kmax)
 h5f.create_dataset('Kmean',data=Kmean)
 h5f.create_dataset('Kgaus',data=Kgaus)
-print(h5f.shape)
+
 
 h5f.close()
 
