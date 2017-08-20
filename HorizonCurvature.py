@@ -130,7 +130,7 @@ plt.show()
 
 
 #export to csv
-# Kmax=Kmax.reshape(37430)
+# Kmax=Kmax.reshape(36360)
 # grid['Kmax']=Kmax
 # grid.to_csv("kmax.csv")
 
