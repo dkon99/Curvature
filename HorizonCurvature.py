@@ -1,5 +1,6 @@
 import pandas as pd
 import numpy as np
+from numba import jit
 import scipy.linalg
 import datetime
 import matplotlib.pyplot as plt
@@ -37,23 +38,18 @@ Idea is to loop through each column and trace of horizon array
 
 # Load data from csv file
 path = 'c:/data'
-gridfile='GridExport.csv'
+gridfile='penobscot.csv'
 hf=path + '\\' +gridfile
 grid=pd.read_csv(hf)
 
 
  # create array for calculations
-
 Z = np.array(grid['Value'])
-Z = Z.reshape(190, 197) # need to pass 2d array of z at x,y to func
+Z = Z.reshape(202,180) # need to pass 2d array of z at x,y to func
 
-stepout=7
+stepout=5
 
-
-# curvature loop
-
-
-# @autojit
+#@jit
 def runK(Z,stepout):
     ''' Param Z = 2D area (z(x,y))
         Param stepout = number of adjacent data to use
@@ -73,24 +69,25 @@ def runK(Z,stepout):
     Kplus = np.zeros(Z.shape)
     Kminus = np.zeros(Z.shape)
     Si = np.zeros(Z.shape)
+    Dip = np.zeros(Z.shape)
+    Azimuth = np.zeros(Z.shape)
 
     ti = datetime.datetime.now()
 
 
-
+# curvature loop
     for ci in range(stepout, Colmax - stepout):
         # column loop
         for ri in range(stepout, Rowmax - stepout):
-            #range loop
+            #row loop
             i = 0
-            for xs in range(-stepout,stepout+1,1):  # xs range to cacl surface
 
+            # this smaller loop is for gathering the points for each patch and calc the least sq and Curv
+            for xs in range(-stepout,stepout+1,1):  # xs range to cacl surface
                 x = xs + ci #x for each sample in patch
                 for ys in range(-stepout,stepout+1,1):
                     y = ys + ri    #y for each sample in patch
-                    # print(x,y)
                     data[i] = [xs,ys,Z[x, y]]
-                    #data[i] = [x, y, Z[x, y]]  # Data for surface with center xs,ys. Z is surface data for patch
                     i += 1
 
             A=np.vstack([data[:,0]**2,data[:,1]**2,np.prod(data[:,:2], axis=1),data[:,0],data[:,1],np.ones(data.shape[0])]).T
@@ -99,6 +96,8 @@ def runK(Z,stepout):
 
             Kmean[ci, ri] = (a * (1 + e ** 2) - c * d * e + b * (1 + d ** 2)) / (1 + d ** 2 + e ** 2) ** (3 / 2)
             Kgaus[ci, ri] = (4 * a * b - c ** 2) / (1 + d ** 2 + e ** 2) ** 2
+            Dip[ci, ri] = 180*np.arctan(np.sqrt(d**2+e**2))/np.pi
+            Azimuth[ci, ri] = 180*np.arctan(e/d)/np.pi
             Kmax[ci, ri] = Kmean[ci, ri] + (Kmean[ci, ri] ** 2 - Kgaus[ci, ri]) ** .5
             # Kmin[ci, ri] = Kmean[ci, ri] - (Kmean[ci, ri] ** 2 - Kgaus[ci, ri]) ** .5
             # Kplus[ci, ri] = (a + b) + ((a - b) ** 2 + c ** 2) ** .5
@@ -129,4 +128,9 @@ plt.imshow(Kmax,cmap='afmhot')
 plt.ylim(min(plt.ylim()), max(plt.ylim()))
 plt.show()
 
+
+#export to csv
+# Kmax=Kmax.reshape(37430)
+# grid['Kmax']=Kmax
+# grid.to_csv("kmax.csv")
 
